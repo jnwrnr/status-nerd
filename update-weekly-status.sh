@@ -2,15 +2,15 @@
 
 # Required parameters:
 # @raycast.schemaVersion 1
-# @raycast.title Update Weekly Status
+# @raycast.title Status Nerd
 # @raycast.mode compact
 
 # Optional parameters:
-# @raycast.icon 🎲
-# @raycast.packageName Status Updater
+# @raycast.icon 🤓
+# @raycast.packageName Status Nerd
 
 # Documentation:
-# @raycast.description Updates Slack and GitLab status with a random funny message
+# @raycast.description Sets a random funny status on Slack, GitLab and GitHub
 
 # Get the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"

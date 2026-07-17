@@ -1,6 +1,6 @@
-# Slack & GitLab Status Updater
+# Status Nerd
 
-A Raycast script that randomly updates your Slack and GitLab status with funny work-life messages.
+A Raycast script that randomly updates your Slack, GitLab and GitHub status with funny work-life messages.
 
 <img width="880" height="495" alt="Xnapper-2025-11-30-21 03 25" src="https://github.com/user-attachments/assets/4e29434a-2fec-48db-8375-17f647918ab0" />
 
@@ -8,8 +8,8 @@ A Raycast script that randomly updates your Slack and GitLab status with funny w
 ## Features
 
 - Randomly selects from 30+ witty status messages
-- Updates both Slack and GitLab simultaneously
-- Automatic status expiration (Slack: 5:30 PM, GitLab: 8 hours)
+- Updates Slack, GitLab and GitHub simultaneously
+- Automatic status expiration (Slack & GitHub: 5:30 PM, GitLab: 8 hours)
 - Avoids recently used statuses
 - Easy Raycast integration
 
@@ -31,14 +31,17 @@ A Raycast script that randomly updates your Slack and GitLab status with funny w
 - [Raycast](https://raycast.com/) (for macOS)
 - Slack workspace with user token
 - GitLab account with personal access token
+- GitHub account with a personal access token (classic)
+
+All three platforms are optional: any token you leave blank is simply skipped.
 
 ## Installation
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/jnwrnr/slack-gitlab-status-updater.git
-cd slack-gitlab-status-updater
+git clone https://github.com/jnwrnr/status-nerd.git
+cd status-nerd
 ```
 
 ### 2. Install dependencies
@@ -67,6 +70,7 @@ Edit `.env` and add your tokens:
 SLACK_USER_TOKEN=xoxp-your-slack-token-here
 GITLAB_TOKEN=glpat-your-gitlab-token-here
 GITLAB_URL=https://gitlab.com
+GITHUB_TOKEN=ghp-your-github-token-here
 ```
 
 #### Getting a Slack User Token
@@ -84,22 +88,31 @@ GITLAB_URL=https://gitlab.com
 2. Create a new token with the `api` scope
 3. Copy the token (starts with `glpat-`)
 
+#### Getting a GitHub Personal Access Token
+
+1. Go to [GitHub → Settings → Developer settings → Personal access tokens (classic)](https://github.com/settings/tokens)
+2. Click "Generate new token (classic)"
+3. Select the `user` scope (required for `changeUserStatus`)
+4. Copy the token (starts with `ghp_`)
+
+> Note: the GitHub profile status is set via the GraphQL API. Fine-grained tokens don't reliably support `changeUserStatus`, so use a classic token.
+
 ### 4. Set up Raycast
 
 1. Open Raycast
 2. Go to Extensions → Script Commands
 3. Click "+" → "Add Script Directory"
 4. Select the folder containing `update-weekly-status.sh`
-5. The command will appear as "Update Weekly Status"
+5. The command will appear as "Status Nerd"
 
 ## Usage
 
 ### Via Raycast
 
 1. Open Raycast (Cmd+Space or your custom hotkey)
-2. Type "Update Weekly Status"
+2. Type "Status Nerd"
 3. Press Enter
-4. Your Slack and GitLab status will be updated with a random message
+4. Your Slack, GitLab and GitHub status will be updated with a random message
 
 ### Via Command Line
 
@@ -131,7 +144,7 @@ Edit `statuses.json` to add your own messages:
 
 Edit `update_status.py`:
 
-- **Slack expiration:** Modify the `get_expiration_timestamp()` function
+- **Slack & GitHub expiration:** Modify the `get_expiration_datetime()` function
 - **GitLab expiration:** Change `"clear_status_after"` in `update_gitlab_status()`
 
 ## How It Works
@@ -141,7 +154,8 @@ Edit `update_status.py`:
 3. Randomly selects a new status
 4. Updates Slack via the Web API
 5. Updates GitLab via the REST API
-6. Saves the selection to history
+6. Updates GitHub via the GraphQL API
+7. Saves the selection to history
 
 ## Troubleshooting
 
@@ -208,7 +222,7 @@ Open Terminal (yes, that scary black window). Don't worry, it won't bite. Copy a
 
 ```bash
 cd ~/Downloads
-git clone https://github.com/jnwrnr/slack-gitlab-status-updater.git
+git clone https://github.com/jnwrnr/status-nerd.git
 ```
 
 Press Enter. Boom, files downloaded.
@@ -218,7 +232,7 @@ Press Enter. Boom, files downloaded.
 Python is probably already on your Mac. Let's install the extra bits this needs:
 
 ```bash
-cd slack-gitlab-status-updater
+cd status-nerd
 pip3 install -r requirements.txt
 ```
 
@@ -269,13 +283,13 @@ This will open a file. Replace `your-slack-token-here` with your actual Slack to
 2. Type "Script Commands" and press Enter
 3. Click the little "+" button
 4. Click "Add Script Directory"
-5. Navigate to `Downloads/slack-gitlab-status-updater` and select it
+5. Navigate to `Downloads/status-nerd` and select it
 6. You're done! 🎉
 
 **Step 7: Actually use the thing**
 
 1. Open Raycast (Cmd+Space or whatever you set it to)
-2. Type "Update Weekly Status"
+2. Type "Status Nerd"
 3. Press Enter
 4. Check your Slack/GitLab status and feel the dopamine hit
 
