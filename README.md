@@ -4,7 +4,7 @@ A native **Raycast extension** that sets a funny work status on **Slack, GitLab 
 
 > **v2** — this started as a Raycast *script command* (Python). It's now a proper Raycast extension. The old script still lives in [`legacy/`](./legacy) as a reference / fallback.
 
-<img width="880" height="495" alt="status on slack" src="https://github.com/user-attachments/assets/4e29434a-2fec-48db-8375-17f647918ab0" />
+<img width="880" alt="Set Status command in Raycast" src="assets/screenshots/set-status.png" />
 
 ## Features
 
