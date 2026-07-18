@@ -13,17 +13,23 @@ const DEFAULT_EMOJI = ":speech_balloon:";
 /**
  * Ask Raycast AI for a batch of short, funny work statuses based on the
  * user's notes/keywords. Returns several options so the user can shuffle
- * through them without a new API call each time.
+ * through them without a new API call each time. `tone` is the user's own
+ * style guidance from onboarding (empty = built-in default).
  */
 export async function generateStatuses(
   notes: string,
+  tone = "",
   count = 6,
 ): Promise<Suggestion[]> {
   const notesLine = notes.trim()
     ? `Base them on these notes/keywords: ${notes.trim()}.`
     : "Base them on typical product-manager work life.";
+  const toneLine = tone.trim()
+    ? `Tone & style guidance from the user (follow it closely): ${tone.trim()}`
+    : "";
   const prompt = `You write short, witty work statuses for a busy product manager.
 ${notesLine}
+${toneLine}
 Generate ${count} distinct options — vary the angle and tone.
 Return ONLY a compact JSON array, no markdown, no code fences, in this exact shape:
 [{"emoji": ":shortcode:", "text": "status under 60 characters"}]

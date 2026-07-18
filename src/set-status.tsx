@@ -6,21 +6,38 @@ import {
   Toast,
   popToRoot,
   showToast,
+  useNavigation,
 } from "@raycast/api";
+import { usePromise } from "@raycast/utils";
 import { useState } from "react";
 import { applyStatus, SERVICE_LABELS, ServiceKey } from "./lib/api";
 import { canUseAI, generateStatuses, Suggestion } from "./lib/ai";
+import { DURATION_OPTIONS, DurationKey } from "./lib/duration";
 import { charFor } from "./lib/emoji";
 import { defaultServices, getPrefs } from "./lib/preferences";
 import { randomStatus } from "./lib/statuses";
 import { addRecent, addSaved } from "./lib/storage";
+import { getTone, isOnboarded, setTone } from "./lib/tone";
 
 export default function Command() {
+  const { data: onboarded, isLoading, revalidate } = usePromise(isOnboarded);
+
+  if (isLoading) {
+    return <Form isLoading />;
+  }
+  if (onboarded === false) {
+    return <ToneForm onboarding onDone={revalidate} />;
+  }
+  return <SetStatusForm />;
+}
+
+function SetStatusForm() {
   const prefs = getPrefs();
   const [services, setServices] = useState<string[]>(defaultServices(prefs));
   const [notes, setNotes] = useState("");
   const [emoji, setEmoji] = useState("");
   const [text, setText] = useState("");
+  const [duration, setDuration] = useState<string>("default");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -47,7 +64,8 @@ export default function Command() {
       title: "Generating suggestions…",
     });
     try {
-      const results = await generateStatuses(notes);
+      const tone = await getTone();
+      const results = await generateStatuses(notes, tone);
       setSuggestions(results);
       setIndex(0);
       apply(results[0]);
@@ -100,6 +118,7 @@ export default function Command() {
       emoji.trim() || ":speech_balloon:",
       text.trim(),
       prefs,
+      duration === "default" ? undefined : (duration as DurationKey),
     );
     setLoading(false);
 
@@ -178,6 +197,14 @@ export default function Command() {
       }}
     />
   );
+  const toneAction = (
+    <Action.Push
+      title="Change Tone…"
+      icon={Icon.Pencil}
+      shortcut={{ modifiers: ["cmd"], key: "t" }}
+      target={<ToneForm />}
+    />
+  );
 
   return (
     <Form
@@ -191,12 +218,14 @@ export default function Command() {
               {shuffleAction}
               {generateAction}
               {saveAction}
+              {toneAction}
             </>
           ) : (
             <>
               {generateAction}
               {shuffleAction}
               {setAction}
+              {toneAction}
             </>
           )}
         </ActionPanel>
@@ -216,6 +245,21 @@ export default function Command() {
           />
         ))}
       </Form.TagPicker>
+      <Form.Dropdown
+        id="duration"
+        title="Duration"
+        value={duration}
+        onChange={setDuration}
+        info="How long the status stays. GitLab is mapped to its nearest supported bucket."
+      >
+        <Form.Dropdown.Item
+          value="default"
+          title="Default (from preferences)"
+        />
+        {DURATION_OPTIONS.map((o) => (
+          <Form.Dropdown.Item key={o.key} value={o.key} title={o.title} />
+        ))}
+      </Form.Dropdown>
       <Form.TextArea
         id="notes"
         title="Notes"
@@ -245,6 +289,73 @@ export default function Command() {
         placeholder="Generate from notes (⌘G) or shuffle the list (⌘R)"
         value={text}
         onChange={setText}
+      />
+    </Form>
+  );
+}
+
+/**
+ * Tone setup — shown once as onboarding on first launch, and reachable later
+ * via "Change Tone…" (⌘T). The tone is appended to the built-in AI prompt.
+ */
+function ToneForm({
+  onboarding = false,
+  onDone,
+}: {
+  onboarding?: boolean;
+  onDone?: () => void;
+}) {
+  const { pop } = useNavigation();
+  const { data: initialTone, isLoading } = usePromise(getTone);
+  const [tone, setToneValue] = useState<string | undefined>(undefined);
+  const value = tone ?? initialTone ?? "";
+
+  async function save(chosen: string) {
+    await setTone(chosen);
+    await showToast({
+      style: Toast.Style.Success,
+      title: chosen.trim() ? "Tone saved" : "Using the default tone",
+    });
+    if (onboarding) {
+      onDone?.();
+    } else {
+      pop();
+    }
+  }
+
+  return (
+    <Form
+      isLoading={isLoading}
+      actions={
+        <ActionPanel>
+          <Action.SubmitForm
+            title={onboarding ? "Save & Start" : "Save Tone"}
+            icon={Icon.Check}
+            onSubmit={() => save(value)}
+          />
+          {onboarding && (
+            <Action
+              title="Skip — Use Default Tone"
+              icon={Icon.ArrowRight}
+              onAction={() => save("")}
+            />
+          )}
+        </ActionPanel>
+      }
+    >
+      {onboarding && (
+        <Form.Description
+          title="Welcome to Status Nerd 🤓"
+          text="One quick thing: how should your AI-generated statuses sound? Describe the tone in your own words — you can change it anytime with ⌘T in Set Status."
+        />
+      )}
+      <Form.TextArea
+        id="tone"
+        title="Tone"
+        placeholder="e.g. dry sarcasm, dad jokes welcome, slightly dramatic, never corporate"
+        info="Appended to the AI prompt as style guidance. Leave empty for the built-in default."
+        value={value}
+        onChange={setToneValue}
       />
     </Form>
   );

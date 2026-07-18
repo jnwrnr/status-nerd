@@ -18,6 +18,8 @@ https://github.com/user-attachments/assets/b4afaf99-b64e-446f-bb0e-0408673d68e8
 - **Select Status**: pick from your recent, saved and default statuses; save your own
 - **Random Status**: one command, one click, a random status on your default services
 - **Clear Status**: remove your status everywhere at once
+- **Your own tone**: a short onboarding captures how your AI statuses should sound (change anytime with ⌘T)
+- **Configurable duration**: default in preferences, override per run (until 17:30, 1h/4h/8h, end of day, never)
 - Tokens stored **encrypted** by Raycast (no `.env`); any service left without a token is skipped
 - Per-service failures are isolated — GitLab being down never blocks Slack
 
@@ -53,13 +55,13 @@ Then pick your **Default Services** in preferences — these are preselected in 
 ## Usage
 
 ### Set Status
-1. Run **Set Status**
+1. Run **Set Status** — on first launch, a short onboarding asks for your **tone** (how AI statuses should sound, e.g. "dry sarcasm, never corporate"). Change it anytime with **⌘T**.
 2. Type a few keywords in **Notes** (e.g. "sprint planning, too many meetings, coffee")
-3. Press **Enter** → Raycast AI turns them into several suggestions
+3. Press **Enter** → Raycast AI turns them into several suggestions, in your tone
 4. **⌘R** to shuffle through them · **⌘G** to generate a fresh batch
 5. **Enter** to set the status on the selected services
 
-Emoji and text stay editable, so you can tweak any suggestion before setting it.
+Emoji and text stay editable, so you can tweak any suggestion before setting it. The **Duration** dropdown overrides your default duration for this run.
 
 <img width="608" height="342" alt="status on gitlab" src="https://github.com/user-attachments/assets/688efc6b-f4c4-4946-8dd2-681d7b3bc31f" />
 
@@ -80,7 +82,7 @@ Run **Clear Status** to remove your status on all configured services at once (o
 ## Notes
 
 - **AI generation requires Raycast Pro.** Without it, ⌘R falls back to a built-in list of 30+ statuses.
-- Expiration: Slack & GitHub statuses clear at 17:30 (today or tomorrow), GitLab after 8 hours.
+- **Expiration:** set the default in preferences (until 17:30, 1h, 4h, 8h, end of day, don't expire) and override it per run in Set Status. Slack and GitHub honor the exact time; GitLab only supports fixed buckets (30 min, 3h, 8h, 1/3/7/30 days), so it snaps to the nearest one.
 - Emoji format: Slack-style `:shortcode:`. GitLab drops the colons, GitHub keeps them — the extension handles the conversion, and only emoji valid on all three services are used.
 
 ## Customizing the statuses

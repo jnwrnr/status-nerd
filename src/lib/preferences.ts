@@ -1,5 +1,6 @@
 import { getPreferenceValues } from "@raycast/api";
 import { ServiceKey } from "./api";
+import { DurationKey } from "./duration";
 
 export interface Prefs {
   slackToken?: string;
@@ -9,6 +10,7 @@ export interface Prefs {
   defaultSlack: boolean;
   defaultGitlab: boolean;
   defaultGithub: boolean;
+  defaultDuration: DurationKey;
 }
 
 export function getPrefs(): Prefs {

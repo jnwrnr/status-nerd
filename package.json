@@ -89,6 +89,22 @@
       "type": "checkbox",
       "default": true,
       "required": false
+    },
+    {
+      "name": "defaultDuration",
+      "title": "Default Status Duration",
+      "description": "How long a status stays before it clears (GitLab is mapped to its nearest supported bucket)",
+      "type": "dropdown",
+      "default": "until_1730",
+      "required": false,
+      "data": [
+        { "title": "Until 17:30", "value": "until_1730" },
+        { "title": "1 hour", "value": "1h" },
+        { "title": "4 hours", "value": "4h" },
+        { "title": "8 hours", "value": "8h" },
+        { "title": "End of day", "value": "eod" },
+        { "title": "Don't expire", "value": "never" }
+      ]
     }
   ],
   "dependencies": {
