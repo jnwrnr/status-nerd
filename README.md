@@ -1,5 +1,12 @@
 # Status Nerd
 
+> **Heads up — there's a better solution now.** This script-command approach has
+> been superseded by a native Raycast extension:
+> [**status-nerd-raycast**](https://github.com/jnwrnr/status-nerd-raycast) (private repo).
+> The extension adds per-service selection (choose Slack / GitLab / GitHub per run)
+> and AI-generated statuses from your own notes. This repo is kept as a reference
+> and lightweight fallback.
+
 A Raycast script that randomly updates your Slack, GitLab and GitHub status with funny work-life messages.
 
 <img width="880" height="495" alt="Xnapper-2025-11-30-21 03 25" src="https://github.com/user-attachments/assets/4e29434a-2fec-48db-8375-17f647918ab0" />
