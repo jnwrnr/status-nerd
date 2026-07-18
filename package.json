@@ -1,0 +1,101 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "status-nerd",
+  "title": "Status Nerd",
+  "description": "Set a funny status on Slack, GitLab and GitHub at once — pick services, roll a random one, or generate with AI.",
+  "icon": "icon.png",
+  "author": "jnwrnr",
+  "categories": ["Productivity", "Fun"],
+  "license": "MIT",
+  "commands": [
+    {
+      "name": "set-status",
+      "title": "Set Status",
+      "description": "Choose services, pick or AI-generate a status, and set it",
+      "mode": "view"
+    },
+    {
+      "name": "random-status",
+      "title": "Random Status",
+      "description": "Set a random status on your default services in one click",
+      "mode": "no-view"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "slackToken",
+      "title": "Slack User Token",
+      "description": "xoxp- token with the users.profile:write scope",
+      "type": "password",
+      "required": false
+    },
+    {
+      "name": "gitlabToken",
+      "title": "GitLab Token",
+      "description": "Personal access token with the api scope",
+      "type": "password",
+      "required": false
+    },
+    {
+      "name": "gitlabUrl",
+      "title": "GitLab URL",
+      "description": "Base URL of your GitLab instance",
+      "type": "textfield",
+      "default": "https://gitlab.com",
+      "required": false
+    },
+    {
+      "name": "githubToken",
+      "title": "GitHub Token",
+      "description": "Classic PAT with the user scope (needed for changeUserStatus)",
+      "type": "password",
+      "required": false
+    },
+    {
+      "name": "defaultSlack",
+      "title": "Default Services",
+      "label": "Slack",
+      "description": "Services used by the Random Status command and preselected in Set Status",
+      "type": "checkbox",
+      "default": true,
+      "required": false
+    },
+    {
+      "name": "defaultGitlab",
+      "title": "",
+      "label": "GitLab",
+      "description": "Include GitLab in the default services",
+      "type": "checkbox",
+      "default": true,
+      "required": false
+    },
+    {
+      "name": "defaultGithub",
+      "title": "",
+      "label": "GitHub",
+      "description": "Include GitHub in the default services",
+      "type": "checkbox",
+      "default": true,
+      "required": false
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.83.0",
+    "@raycast/utils": "^1.17.0"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^1.0.11",
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.3.3",
+    "eslint": "^8.57.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.5.4"
+  },
+  "scripts": {
+    "build": "ray build",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint",
+    "publish": "npx @raycast/api@latest publish"
+  }
+}

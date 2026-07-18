@@ -1,0 +1,181 @@
+import { Prefs } from "./preferences";
+
+export type ServiceKey = "slack" | "gitlab" | "github";
+
+export const SERVICE_LABELS: Record<ServiceKey, string> = {
+  slack: "Slack",
+  gitlab: "GitLab",
+  github: "GitHub",
+};
+
+export interface ApplyResult {
+  service: ServiceKey;
+  ok: boolean;
+  error?: string;
+}
+
+/** Timezone-aware expiration at 17:30 today (or tomorrow if already past). */
+function getExpiration(): Date {
+  const now = new Date();
+  const expiration = new Date();
+  expiration.setHours(17, 30, 0, 0);
+  if (now >= expiration) {
+    expiration.setDate(expiration.getDate() + 1);
+  }
+  return expiration;
+}
+
+const SLACK_FALLBACK_EMOJI = ":speech_balloon:";
+
+async function postSlackStatus(
+  token: string,
+  emoji: string,
+  text: string,
+): Promise<string | null> {
+  const response = await fetch("https://slack.com/api/users.profile.set", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: JSON.stringify({
+      profile: {
+        status_text: text,
+        status_emoji: emoji,
+        status_expiration: Math.floor(getExpiration().getTime() / 1000),
+      },
+    }),
+  });
+  const data = (await response.json()) as { ok: boolean; error?: string };
+  return data.ok ? null : (data.error ?? "unknown Slack error");
+}
+
+async function setSlackStatus(
+  token: string,
+  emoji: string,
+  text: string,
+): Promise<void> {
+  let error = await postSlackStatus(token, emoji, text);
+  // Slack rejects emoji shortcodes it doesn't know. Retry with a safe default
+  // so the status text still lands (GitLab/GitHub are more forgiving).
+  if (
+    error === "profile_status_set_failed_not_valid_emoji" &&
+    emoji !== SLACK_FALLBACK_EMOJI
+  ) {
+    error = await postSlackStatus(token, SLACK_FALLBACK_EMOJI, text);
+  }
+  if (error) {
+    throw new Error(error);
+  }
+}
+
+async function setGitlabStatus(
+  baseUrl: string,
+  token: string,
+  emoji: string,
+  text: string,
+): Promise<void> {
+  // GitLab wants the emoji name without colons (e.g. "fire", not ":fire:")
+  const emojiName = emoji.replace(/:/g, "");
+  const response = await fetch(
+    `${baseUrl.replace(/\/$/, "")}/api/v4/user/status`,
+    {
+      method: "PUT",
+      headers: {
+        "PRIVATE-TOKEN": token,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        emoji: emojiName,
+        message: text,
+        clear_status_after: "8_hours",
+      }),
+    },
+  );
+  if (!response.ok) {
+    throw new Error(`${response.status} ${await response.text()}`);
+  }
+}
+
+async function setGithubStatus(
+  token: string,
+  emoji: string,
+  text: string,
+): Promise<void> {
+  const query = `
+    mutation($emoji: String!, $message: String!, $expiresAt: DateTime) {
+      changeUserStatus(input: {emoji: $emoji, message: $message, expiresAt: $expiresAt}) {
+        status { emoji message expiresAt }
+      }
+    }
+  `;
+  const response = await fetch("https://api.github.com/graphql", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      query,
+      variables: {
+        emoji,
+        message: text,
+        expiresAt: getExpiration().toISOString(),
+      },
+    }),
+  });
+  const data = (await response.json()) as {
+    errors?: Array<{ message: string }>;
+  };
+  if (!response.ok || data.errors) {
+    const message =
+      data.errors?.map((e) => e.message).join("; ") ?? response.statusText;
+    throw new Error(message);
+  }
+}
+
+/**
+ * Set the same status on the selected services. Each service is applied
+ * independently — one failure never blocks the others.
+ */
+export async function applyStatus(
+  services: ServiceKey[],
+  emoji: string,
+  text: string,
+  prefs: Prefs,
+): Promise<ApplyResult[]> {
+  const tasks = services.map(async (service): Promise<ApplyResult> => {
+    try {
+      switch (service) {
+        case "slack":
+          if (!prefs.slackToken)
+            throw new Error("No Slack token in preferences");
+          await setSlackStatus(prefs.slackToken, emoji, text);
+          break;
+        case "gitlab":
+          if (!prefs.gitlabToken)
+            throw new Error("No GitLab token in preferences");
+          await setGitlabStatus(
+            prefs.gitlabUrl,
+            prefs.gitlabToken,
+            emoji,
+            text,
+          );
+          break;
+        case "github":
+          if (!prefs.githubToken)
+            throw new Error("No GitHub token in preferences");
+          await setGithubStatus(prefs.githubToken, emoji, text);
+          break;
+      }
+      return { service, ok: true };
+    } catch (error) {
+      return {
+        service,
+        ok: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  });
+  return Promise.all(tasks);
+}

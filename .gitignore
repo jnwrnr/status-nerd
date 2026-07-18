@@ -1,28 +1,36 @@
-# Environment variables with secrets
+# --- Raycast extension ---
+node_modules
+raycast-env.d.ts
+.raycast-swift-build
+compiled_raycast_swift
+dist
+.eslintcache
+
+# --- Secrets & runtime (extension uses Raycast prefs; legacy python uses .env) ---
 .env
-
-# Status history
+**/.env
 .status_history
+**/.status_history
 
-# Python
+# --- Python (legacy/) ---
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
 
-# macOS
+# --- macOS ---
 .DS_Store
 .AppleDouble
 .LSOverride
 
-# IDE
+# --- IDE ---
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# Temporary files
+# --- Temp ---
 *.log
 *.tmp
