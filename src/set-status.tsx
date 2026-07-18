@@ -10,6 +10,7 @@ import {
 import { useState } from "react";
 import { applyStatus, SERVICE_LABELS, ServiceKey } from "./lib/api";
 import { canUseAI, generateStatuses, Suggestion } from "./lib/ai";
+import { charFor } from "./lib/emoji";
 import { defaultServices, getPrefs } from "./lib/preferences";
 import { randomStatus } from "./lib/statuses";
 import { addRecent, addSaved } from "./lib/storage";
@@ -108,9 +109,11 @@ export default function Command() {
     const failed = results.filter((r) => !r.ok);
 
     if (ok.length > 0) {
+      const chosen = emoji.trim() || ":speech_balloon:";
       await addRecent({
-        emoji: emoji.trim() || ":speech_balloon:",
+        emoji: chosen,
         text: text.trim(),
+        gitlab_emoji: charFor(chosen),
       });
     }
 
@@ -165,9 +168,11 @@ export default function Command() {
           });
           return;
         }
+        const chosen = emoji.trim() || ":speech_balloon:";
         await addSaved({
-          emoji: emoji.trim() || ":speech_balloon:",
+          emoji: chosen,
           text: text.trim(),
+          gitlab_emoji: charFor(chosen),
         });
         await showToast({ style: Toast.Style.Success, title: "Saved" });
       }}

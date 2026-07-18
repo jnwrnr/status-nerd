@@ -1,4 +1,5 @@
 import { AI, environment } from "@raycast/api";
+import { SAFE_EMOJI_CODES, SAFE_EMOJI_SET } from "./emoji";
 import { StatusItem } from "./statuses";
 
 export type Suggestion = Pick<StatusItem, "emoji" | "text">;
@@ -7,60 +8,6 @@ export function canUseAI(): boolean {
   return environment.canAccess(AI);
 }
 
-/**
- * Standard emoji shortcodes that exist on Slack, GitLab and GitHub alike.
- * The AI is restricted to these so Slack never rejects an unknown emoji.
- */
-const SAFE_EMOJIS = [
-  ":fire:",
-  ":rocket:",
-  ":coffee:",
-  ":brain:",
-  ":zap:",
-  ":dart:",
-  ":bulb:",
-  ":skull:",
-  ":ocean:",
-  ":wrench:",
-  ":gift:",
-  ":tornado:",
-  ":alarm_clock:",
-  ":crystal_ball:",
-  ":game_die:",
-  ":compass:",
-  ":hourglass:",
-  ":sparkles:",
-  ":tada:",
-  ":bar_chart:",
-  ":chart_with_upwards_trend:",
-  ":chart_with_downwards_trend:",
-  ":calendar:",
-  ":hammer:",
-  ":gear:",
-  ":mag:",
-  ":books:",
-  ":memo:",
-  ":clipboard:",
-  ":computer:",
-  ":bug:",
-  ":construction:",
-  ":warning:",
-  ":snail:",
-  ":turtle:",
-  ":muscle:",
-  ":pray:",
-  ":sob:",
-  ":sweat_smile:",
-  ":ghost:",
-  ":robot_face:",
-  ":boom:",
-  ":zzz:",
-  ":rotating_light:",
-  ":dizzy:",
-  ":tea:",
-  ":telephone:",
-];
-const SAFE_EMOJI_SET = new Set(SAFE_EMOJIS);
 const DEFAULT_EMOJI = ":speech_balloon:";
 
 /**
@@ -81,7 +28,7 @@ Generate ${count} distinct options — vary the angle and tone.
 Return ONLY a compact JSON array, no markdown, no code fences, in this exact shape:
 [{"emoji": ":shortcode:", "text": "status under 60 characters"}]
 Rules:
-- "emoji" MUST be chosen from this exact list (copy it verbatim): ${SAFE_EMOJIS.join(" ")}
+- "emoji" MUST be chosen from this exact list (copy it verbatim): ${SAFE_EMOJI_CODES.join(" ")}
 - Pick the emoji that best fits each status.
 - "text" is one punchy line, no surrounding quotes, no trailing period.
 - Return exactly ${count} objects.`;

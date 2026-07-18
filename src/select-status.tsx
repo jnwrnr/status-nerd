@@ -12,6 +12,7 @@ import {
 import { usePromise } from "@raycast/utils";
 import { useState } from "react";
 import { applyStatus, SERVICE_LABELS } from "./lib/api";
+import { charFor, PICKER_EMOJIS } from "./lib/emoji";
 import { defaultServices, getPrefs } from "./lib/preferences";
 import { STATUSES } from "./lib/statuses";
 import {
@@ -24,11 +25,9 @@ import {
   StoredStatus,
 } from "./lib/storage";
 
-function normalizeEmoji(raw: string): string {
-  let emoji = raw.trim() || ":speech_balloon:";
-  if (!emoji.startsWith(":")) emoji = `:${emoji}`;
-  if (!emoji.endsWith(":")) emoji = `${emoji}:`;
-  return emoji;
+/** Attach the Unicode character to a status so it displays and persists correctly. */
+function withChar(item: StoredStatus): StoredStatus {
+  return { ...item, gitlab_emoji: item.gitlab_emoji ?? charFor(item.emoji) };
 }
 
 export default function Command() {
@@ -59,11 +58,7 @@ export default function Command() {
       title: "Setting status…",
     });
     const results = await applyStatus(services, item.emoji, item.text, prefs);
-    await addRecent({
-      emoji: item.emoji,
-      text: item.text,
-      gitlab_emoji: item.gitlab_emoji,
-    });
+    await addRecent(withChar(item));
     reloadRecent();
 
     const ok = results
@@ -104,11 +99,7 @@ export default function Command() {
             icon={Icon.Star}
             shortcut={{ modifiers: ["cmd"], key: "s" }}
             onAction={async () => {
-              await addSaved({
-                emoji: item.emoji,
-                text: item.text,
-                gitlab_emoji: item.gitlab_emoji,
-              });
+              await addSaved(withChar(item));
               await showToast({ style: Toast.Style.Success, title: "Saved" });
               reloadSaved();
             }}
@@ -153,9 +144,11 @@ export default function Command() {
     source: "recent" | "saved" | "default",
     index: number,
   ) {
+    const char = item.gitlab_emoji ?? charFor(item.emoji);
     return (
       <List.Item
         key={`${source}-${index}-${item.emoji}-${item.text}`}
+        icon={char}
         title={item.text}
         accessories={[{ tag: item.emoji }]}
         actions={itemActions(item, source)}
@@ -183,7 +176,7 @@ export default function Command() {
 
 function NewStatusForm({ onSaved }: { onSaved: () => void }) {
   const { pop } = useNavigation();
-  const [emoji, setEmoji] = useState(":speech_balloon:");
+  const [emojiCode, setEmojiCode] = useState(":fire:");
   const [text, setText] = useState("");
 
   async function submit() {
@@ -194,7 +187,11 @@ function NewStatusForm({ onSaved }: { onSaved: () => void }) {
       });
       return;
     }
-    await addSaved({ emoji: normalizeEmoji(emoji), text: text.trim() });
+    await addSaved({
+      emoji: emojiCode,
+      text: text.trim(),
+      gitlab_emoji: charFor(emojiCode),
+    });
     await showToast({ style: Toast.Style.Success, title: "Saved" });
     onSaved();
     pop();
@@ -212,14 +209,21 @@ function NewStatusForm({ onSaved }: { onSaved: () => void }) {
         </ActionPanel>
       }
     >
-      <Form.TextField
+      <Form.Dropdown
         id="emoji"
         title="Emoji"
-        placeholder=":fire:"
-        info="Slack-style shortcode"
-        value={emoji}
-        onChange={setEmoji}
-      />
+        value={emojiCode}
+        onChange={setEmojiCode}
+      >
+        {PICKER_EMOJIS.map((e) => (
+          <Form.Dropdown.Item
+            key={e.code}
+            value={e.code}
+            title={`${e.char}  ${e.name}`}
+            icon={e.char}
+          />
+        ))}
+      </Form.Dropdown>
       <Form.TextField
         id="text"
         title="Status"
