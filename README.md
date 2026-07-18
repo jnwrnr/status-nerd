@@ -66,6 +66,22 @@ Run **Random Status** for a one-click random status on your default services (no
 - Expiration: Slack & GitHub statuses clear at 17:30 (today or tomorrow), GitLab after 8 hours.
 - Emoji format: Slack-style `:shortcode:`. GitLab drops the colons, GitHub keeps them — the extension handles the conversion, and only emoji valid on all three services are used.
 
+## Customizing the statuses
+
+The built-in list (used by **Random Status** and by the ⌘R shuffle fallback when AI isn't available) lives in [`src/lib/statuses.ts`](./src/lib/statuses.ts). Add or edit entries in the `STATUSES` array:
+
+```ts
+{ emoji: ":fire:", text: "Putting out fires since 9am", gitlab_emoji: "🔥" },
+```
+
+- `emoji` — Slack-style shortcode. Use a **standard** emoji that exists on Slack (e.g. `:rocket:`), otherwise Slack falls back to a generic icon.
+- `text` — the status message.
+- `gitlab_emoji` — the actual emoji character, shown in the Raycast confirmation.
+
+The AI suggestions (⌘G) don't use this list — they're generated from your notes and restricted to a curated set of safe emoji in [`src/lib/ai.ts`](./src/lib/ai.ts) (`SAFE_EMOJIS`).
+
+After editing, run `npm run dev` (hot-reload) or `npm run build` to pick up the change.
+
 ## Legacy script
 
 The original Python script command (Slack + GitLab + GitHub via a `.sh` triggered from Raycast) is preserved in [`legacy/`](./legacy). See `legacy/update_status.py`. The extension supersedes it.
