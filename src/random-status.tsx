@@ -2,6 +2,7 @@ import { showHUD, showToast, Toast } from "@raycast/api";
 import { applyStatus, SERVICE_LABELS } from "./lib/api";
 import { defaultServices, getPrefs } from "./lib/preferences";
 import { randomStatus } from "./lib/statuses";
+import { addRecent } from "./lib/storage";
 
 export default async function Command() {
   const prefs = getPrefs();
@@ -19,6 +20,14 @@ export default async function Command() {
 
   const ok = results.filter((r) => r.ok).map((r) => SERVICE_LABELS[r.service]);
   const failed = results.filter((r) => !r.ok);
+
+  if (ok.length > 0) {
+    await addRecent({
+      emoji: status.emoji,
+      text: status.text,
+      gitlab_emoji: status.gitlab_emoji,
+    });
+  }
 
   if (failed.length === 0) {
     await showHUD(`${status.gitlab_emoji} ${status.text}  →  ${ok.join(", ")}`);

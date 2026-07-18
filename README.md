@@ -11,7 +11,9 @@ A native **Raycast extension** that sets a funny work status on **Slack, GitLab 
 - Set the same status on **Slack, GitLab and GitHub** in one go
 - **Choose services per run** (or set your defaults in preferences)
 - **Notes → AI**: type a few keywords, get status suggestions from Raycast AI, shuffle through them, then set
+- **Select Status**: pick from your recent, saved and default statuses; save your own
 - **Random Status**: one command, one click, a random status on your default services
+- **Clear Status**: remove your status everywhere at once
 - Tokens stored **encrypted** by Raycast (no `.env`); any service left without a token is skipped
 - Per-service failures are isolated — GitLab being down never blocks Slack
 
@@ -57,8 +59,19 @@ Emoji and text stay editable, so you can tweak any suggestion before setting it.
 
 <img width="608" height="342" alt="status on gitlab" src="https://github.com/user-attachments/assets/688efc6b-f4c4-4946-8dd2-681d7b3bc31f" />
 
+### Select Status
+Run **Select Status** for a searchable list in three sections:
+- **Recent** — the statuses you set most recently (tracked automatically)
+- **Saved** — your own statuses
+- **Defaults** — the built-in list
+
+Enter sets the selected status on your default services. Other actions: **Save to Saved** (⌘S), **Remove** (⌘⌫ for saved/recent), and **Create New Status…** (⌘N) to add your own.
+
 ### Random Status
 Run **Random Status** for a one-click random status on your default services (no form).
+
+### Clear Status
+Run **Clear Status** to remove your status on all configured services at once (one click, no form).
 
 ## Notes
 

@@ -15,9 +15,21 @@
       "mode": "view"
     },
     {
+      "name": "select-status",
+      "title": "Select Status",
+      "description": "Pick from recent, saved and default statuses",
+      "mode": "view"
+    },
+    {
       "name": "random-status",
       "title": "Random Status",
       "description": "Set a random status on your default services in one click",
+      "mode": "no-view"
+    },
+    {
+      "name": "clear-status",
+      "title": "Clear Status",
+      "description": "Remove your status on all configured services at once",
       "mode": "no-view"
     }
   ],

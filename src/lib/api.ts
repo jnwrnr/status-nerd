@@ -134,6 +134,47 @@ async function setGithubStatus(
   }
 }
 
+async function clearGitlabStatus(
+  baseUrl: string,
+  token: string,
+): Promise<void> {
+  const response = await fetch(
+    `${baseUrl.replace(/\/$/, "")}/api/v4/user/status`,
+    {
+      method: "PUT",
+      headers: {
+        "PRIVATE-TOKEN": token,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ emoji: "", message: "" }),
+    },
+  );
+  if (!response.ok) {
+    throw new Error(`${response.status} ${await response.text()}`);
+  }
+}
+
+async function clearGithubStatus(token: string): Promise<void> {
+  // Empty input clears the GitHub profile status.
+  const query = `mutation { changeUserStatus(input: {}) { status { message } } }`;
+  const response = await fetch("https://api.github.com/graphql", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ query }),
+  });
+  const data = (await response.json()) as {
+    errors?: Array<{ message: string }>;
+  };
+  if (!response.ok || data.errors) {
+    const message =
+      data.errors?.map((e) => e.message).join("; ") ?? response.statusText;
+    throw new Error(message);
+  }
+}
+
 /**
  * Set the same status on the selected services. Each service is applied
  * independently — one failure never blocks the others.
@@ -166,6 +207,47 @@ export async function applyStatus(
           if (!prefs.githubToken)
             throw new Error("No GitHub token in preferences");
           await setGithubStatus(prefs.githubToken, emoji, text);
+          break;
+      }
+      return { service, ok: true };
+    } catch (error) {
+      return {
+        service,
+        ok: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  });
+  return Promise.all(tasks);
+}
+
+/**
+ * Clear the status on the selected services. Each service is cleared
+ * independently — one failure never blocks the others.
+ */
+export async function clearStatuses(
+  services: ServiceKey[],
+  prefs: Prefs,
+): Promise<ApplyResult[]> {
+  const tasks = services.map(async (service): Promise<ApplyResult> => {
+    try {
+      switch (service) {
+        case "slack": {
+          if (!prefs.slackToken)
+            throw new Error("No Slack token in preferences");
+          const error = await postSlackStatus(prefs.slackToken, "", "");
+          if (error) throw new Error(error);
+          break;
+        }
+        case "gitlab":
+          if (!prefs.gitlabToken)
+            throw new Error("No GitLab token in preferences");
+          await clearGitlabStatus(prefs.gitlabUrl, prefs.gitlabToken);
+          break;
+        case "github":
+          if (!prefs.githubToken)
+            throw new Error("No GitHub token in preferences");
+          await clearGithubStatus(prefs.githubToken);
           break;
       }
       return { service, ok: true };

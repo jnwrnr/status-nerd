@@ -12,6 +12,7 @@ import { applyStatus, SERVICE_LABELS, ServiceKey } from "./lib/api";
 import { canUseAI, generateStatuses, Suggestion } from "./lib/ai";
 import { defaultServices, getPrefs } from "./lib/preferences";
 import { randomStatus } from "./lib/statuses";
+import { addRecent, addSaved } from "./lib/storage";
 
 export default function Command() {
   const prefs = getPrefs();
@@ -106,6 +107,13 @@ export default function Command() {
       .map((r) => SERVICE_LABELS[r.service]);
     const failed = results.filter((r) => !r.ok);
 
+    if (ok.length > 0) {
+      await addRecent({
+        emoji: emoji.trim() || ":speech_balloon:",
+        text: text.trim(),
+      });
+    }
+
     if (failed.length === 0) {
       toast.style = Toast.Style.Success;
       toast.title = `Status set on ${ok.join(", ")}`;
@@ -144,6 +152,27 @@ export default function Command() {
   const setAction = (
     <Action.SubmitForm title="Set Status" icon={Icon.Check} onSubmit={submit} />
   );
+  const saveAction = (
+    <Action
+      title="Save to Saved"
+      icon={Icon.Star}
+      shortcut={{ modifiers: ["cmd"], key: "s" }}
+      onAction={async () => {
+        if (!text.trim()) {
+          await showToast({
+            style: Toast.Style.Failure,
+            title: "No status to save",
+          });
+          return;
+        }
+        await addSaved({
+          emoji: emoji.trim() || ":speech_balloon:",
+          text: text.trim(),
+        });
+        await showToast({ style: Toast.Style.Success, title: "Saved" });
+      }}
+    />
+  );
 
   return (
     <Form
@@ -156,6 +185,7 @@ export default function Command() {
               {setAction}
               {shuffleAction}
               {generateAction}
+              {saveAction}
             </>
           ) : (
             <>
