@@ -15,6 +15,7 @@ https://github.com/user-attachments/assets/b4afaf99-b64e-446f-bb0e-0408673d68e8
 - Set the same status on **Slack, GitLab and GitHub** in one go
 - **Choose services per run** (or set your defaults in preferences)
 - **Notes → AI**: type a few keywords, get status suggestions from Raycast AI, shuffle through them, then set
+- **Meeting Status**: generate a status from your current/next calendar meeting (privacy-guarded — hints at the *kind* of meeting, never the details)
 - **Select Status**: pick from your recent, saved and default statuses; save your own
 - **Random Status**: one command, one click, a random status on your default services
 - **Clear Status**: remove your status everywhere at once
@@ -52,6 +53,9 @@ Open the extension's preferences in Raycast and add the tokens for the services 
 
 Then pick your **Default Services** in preferences — these are preselected in *Set Status* and used by *Random Status*.
 
+### Optional: calendar (for Meeting Status)
+Add a **Calendar ICS URL** in preferences to enable *Meeting Status*. In Google Calendar → *Settings → Settings for my calendars → [your calendar] → Integrate calendar → Secret address in iCal format*. Paste that URL. It grants read access to that calendar, so treat it like a secret (it's stored as a password preference).
+
 ## Usage
 
 ### Set Status
@@ -64,6 +68,11 @@ Then pick your **Default Services** in preferences — these are preselected in 
 Emoji and text stay editable, so you can tweak any suggestion before setting it. The **Duration** dropdown overrides your default duration for this run.
 
 <img width="608" height="342" alt="status on gitlab" src="https://github.com/user-attachments/assets/688efc6b-f4c4-4946-8dd2-681d7b3bc31f" />
+
+### Meeting Status
+Run **Meeting Status** — it reads your current meeting (or the next one within 24h) from the calendar ICS feed and generates status suggestions from the meeting's title + agenda, in your tone. **⌘R** to shuffle, **⌘G** to regenerate, **Enter** to set. All-day and cancelled events are skipped.
+
+Privacy: the prompt is instructed to never include names, companies, or confidential details — statuses only hint at the *kind* of meeting, so they're safe on a public profile. You review every status before it's set.
 
 ### Select Status
 Run **Select Status** for a searchable list in three sections:

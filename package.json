@@ -5,7 +5,10 @@
   "description": "Set a funny status on Slack, GitLab and GitHub at once — pick services, roll a random one, or generate with AI.",
   "icon": "icon.png",
   "author": "jnwrnr",
-  "categories": ["Productivity", "Fun"],
+  "categories": [
+    "Productivity",
+    "Fun"
+  ],
   "license": "MIT",
   "commands": [
     {
@@ -31,6 +34,12 @@
       "title": "Clear Status",
       "description": "Remove your status on all configured services at once",
       "mode": "no-view"
+    },
+    {
+      "name": "meeting-status",
+      "title": "Meeting Status",
+      "description": "Generate a status from your current or next calendar meeting",
+      "mode": "view"
     }
   ],
   "preferences": [
@@ -91,6 +100,13 @@
       "required": false
     },
     {
+      "name": "calendarIcsUrl",
+      "title": "Calendar ICS URL",
+      "description": "Secret iCal URL (Google Calendar → Settings → Secret address in iCal format). Used by Meeting Status. Grants read access to that calendar — keep it private.",
+      "type": "password",
+      "required": false
+    },
+    {
       "name": "defaultDuration",
       "title": "Default Status Duration",
       "description": "How long a status stays before it clears (GitLab is mapped to its nearest supported bucket)",
@@ -98,18 +114,37 @@
       "default": "until_1730",
       "required": false,
       "data": [
-        { "title": "Until 17:30", "value": "until_1730" },
-        { "title": "1 hour", "value": "1h" },
-        { "title": "4 hours", "value": "4h" },
-        { "title": "8 hours", "value": "8h" },
-        { "title": "End of day", "value": "eod" },
-        { "title": "Don't expire", "value": "never" }
+        {
+          "title": "Until 17:30",
+          "value": "until_1730"
+        },
+        {
+          "title": "1 hour",
+          "value": "1h"
+        },
+        {
+          "title": "4 hours",
+          "value": "4h"
+        },
+        {
+          "title": "8 hours",
+          "value": "8h"
+        },
+        {
+          "title": "End of day",
+          "value": "eod"
+        },
+        {
+          "title": "Don't expire",
+          "value": "never"
+        }
       ]
     }
   ],
   "dependencies": {
     "@raycast/api": "^1.83.0",
-    "@raycast/utils": "^1.17.0"
+    "@raycast/utils": "^1.17.0",
+    "node-ical": "^0.26.1"
   },
   "devDependencies": {
     "@raycast/eslint-config": "^1.0.11",

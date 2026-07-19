@@ -11,6 +11,7 @@ export interface Prefs {
   defaultGitlab: boolean;
   defaultGithub: boolean;
   defaultDuration: DurationKey;
+  calendarIcsUrl?: string;
 }
 
 export function getPrefs(): Prefs {

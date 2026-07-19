@@ -10,6 +10,30 @@ export function canUseAI(): boolean {
 
 const DEFAULT_EMOJI = ":speech_balloon:";
 
+function formatRules(count: number): string {
+  return `Return ONLY a compact JSON array, no markdown, no code fences, in this exact shape:
+[{"emoji": ":shortcode:", "text": "status under 60 characters"}]
+Rules:
+- "emoji" MUST be chosen from this exact list (copy it verbatim): ${SAFE_EMOJI_CODES.join(" ")}
+- Pick the emoji that best fits each status.
+- "text" is one punchy line, no surrounding quotes, no trailing period.
+- Return exactly ${count} objects.`;
+}
+
+async function askForStatuses(
+  instruction: string,
+  count: number,
+): Promise<Suggestion[]> {
+  const answer = await AI.ask(`${instruction}\n${formatRules(count)}`, {
+    creativity: "high",
+  });
+  const parsed = parseSuggestions(answer);
+  if (parsed.length === 0) {
+    throw new Error("Could not parse the AI response");
+  }
+  return parsed;
+}
+
 /**
  * Ask Raycast AI for a batch of short, funny work statuses based on the
  * user's notes/keywords. Returns several options so the user can shuffle
@@ -27,24 +51,38 @@ export async function generateStatuses(
   const toneLine = tone.trim()
     ? `Tone & style guidance from the user (follow it closely): ${tone.trim()}`
     : "";
-  const prompt = `You write short, witty work statuses for a busy product manager.
+  const instruction = `You write short, witty work statuses for a busy product manager.
 ${notesLine}
 ${toneLine}
-Generate ${count} distinct options — vary the angle and tone.
-Return ONLY a compact JSON array, no markdown, no code fences, in this exact shape:
-[{"emoji": ":shortcode:", "text": "status under 60 characters"}]
-Rules:
-- "emoji" MUST be chosen from this exact list (copy it verbatim): ${SAFE_EMOJI_CODES.join(" ")}
-- Pick the emoji that best fits each status.
-- "text" is one punchy line, no surrounding quotes, no trailing period.
-- Return exactly ${count} objects.`;
+Generate ${count} distinct options — vary the angle and tone.`;
+  return askForStatuses(instruction, count);
+}
 
-  const answer = await AI.ask(prompt, { creativity: "high" });
-  const parsed = parseSuggestions(answer);
-  if (parsed.length === 0) {
-    throw new Error("Could not parse the AI response");
-  }
-  return parsed;
+/**
+ * Generate statuses from a calendar meeting's title + agenda. The prompt is
+ * deliberately privacy-guarded: the output hints at the KIND of meeting, never
+ * the literal details, so it's safe to show on a public profile.
+ */
+export async function generateMeetingStatuses(
+  title: string,
+  agenda: string,
+  tone = "",
+  count = 6,
+): Promise<Suggestion[]> {
+  const agendaLine = agenda.trim()
+    ? `Agenda / description: ${agenda.trim()}`
+    : "";
+  const toneLine = tone.trim()
+    ? `Tone & style guidance from the user (follow it closely): ${tone.trim()}`
+    : "";
+  const instruction = `You write short, witty work statuses for a product manager who is about to be (or already is) in a meeting.
+Meeting title: ${title}
+${agendaLine}
+${toneLine}
+Write statuses that hint at the KIND or vibe of the meeting in a funny way — never the literal details.
+PRIVACY (critical): never include people's names, company or customer names, project codenames, numbers, or any confidential specifics. The status will be shown publicly (e.g. on a GitHub profile), so keep it generic and safe.
+Generate ${count} distinct options — vary the angle and tone.`;
+  return askForStatuses(instruction, count);
 }
 
 function parseSuggestions(raw: string): Suggestion[] {
