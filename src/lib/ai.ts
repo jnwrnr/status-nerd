@@ -47,11 +47,11 @@ export async function generateStatuses(
 ): Promise<Suggestion[]> {
   const notesLine = notes.trim()
     ? `Base them on these notes/keywords: ${notes.trim()}.`
-    : "Base them on typical product-manager work life.";
+    : "Base them on typical work life.";
   const toneLine = tone.trim()
     ? `Tone & style guidance from the user (follow it closely): ${tone.trim()}`
     : "";
-  const instruction = `You write short, witty work statuses for a busy product manager.
+  const instruction = `You write short, witty work statuses for a busy professional.
 ${notesLine}
 ${toneLine}
 Generate ${count} distinct options — vary the angle and tone.`;
@@ -75,7 +75,7 @@ export async function generateMeetingStatuses(
   const toneLine = tone.trim()
     ? `Tone & style guidance from the user (follow it closely): ${tone.trim()}`
     : "";
-  const instruction = `You write short, witty work statuses for a product manager who is about to be (or already is) in a meeting.
+  const instruction = `You write short, witty work statuses for someone who is about to be (or already is) in a meeting.
 Meeting title: ${title}
 ${agendaLine}
 ${toneLine}
