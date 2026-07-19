@@ -43,6 +43,11 @@ export async function getCurrentOrNextMeeting(
 ): Promise<Meeting | null> {
   const response = await fetch(icsUrl);
   if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error(
+        "Calendar not found (404). Use the 'Secret address in iCal format' from Google Calendar — it ends in /basic.ics.",
+      );
+    }
     throw new Error(`Calendar fetch failed (${response.status})`);
   }
   const data = sync.parseICS(await response.text());
