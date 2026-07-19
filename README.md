@@ -2,10 +2,6 @@
 
 A native **Raycast extension** that sets a funny work status on **Slack, GitLab and GitHub** at once — pick which services to update, roll a random status, or generate one from your own notes with Raycast AI.
 
-> **v2** — this started as a Raycast *script command* (Python). It's now a proper Raycast extension. The old script still lives in [`legacy/`](./legacy) as a reference / fallback.
-
-
-
 https://github.com/user-attachments/assets/b4afaf99-b64e-446f-bb0e-0408673d68e8
 
 
@@ -24,9 +20,9 @@ https://github.com/user-attachments/assets/b4afaf99-b64e-446f-bb0e-0408673d68e8
 - Tokens stored **encrypted** by Raycast (no `.env`); any service left without a token is skipped
 - Per-service failures are isolated — GitLab being down never blocks Slack
 
-## Install locally
+## Install from source
 
-This is a private/personal extension (not published to the Raycast Store), so you install it from source:
+To run the latest version from source:
 
 ```bash
 git clone https://github.com/jnwrnr/status-nerd.git
@@ -116,13 +112,9 @@ The built-in list (used by **Random Status** and by the ⌘R shuffle fallback wh
 - `text` — the status message.
 - `gitlab_emoji` — the actual emoji character, shown in the Raycast confirmation.
 
-The AI suggestions (⌘G) don't use this list — they're generated from your notes and restricted to a curated set of safe emoji in [`src/lib/ai.ts`](./src/lib/ai.ts) (`SAFE_EMOJIS`).
+The AI suggestions (⌘G) don't use this list — they're generated from your notes and restricted to a curated set of safe emoji in [`src/lib/emoji.ts`](./src/lib/emoji.ts).
 
 After editing, run `npm run dev` (hot-reload) or `npm run build` to pick up the change.
-
-## Legacy script
-
-The original Python script command (Slack + GitLab + GitHub via a `.sh` triggered from Raycast) is preserved in [`legacy/`](./legacy). See `legacy/update_status.py`. The extension supersedes it.
 
 ## License
 

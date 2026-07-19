@@ -4,7 +4,7 @@
   "title": "Status Nerd",
   "description": "Set a funny status on Slack, GitLab and GitHub at once — pick services, roll a random one, or generate with AI.",
   "icon": "icon.png",
-  "author": "jnwrnr",
+  "author": "jan_werner",
   "categories": [
     "Productivity",
     "Fun"
