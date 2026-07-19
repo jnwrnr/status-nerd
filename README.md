@@ -54,7 +54,17 @@ Open the extension's preferences in Raycast and add the tokens for the services 
 Then pick your **Default Services** in preferences — these are preselected in *Set Status* and used by *Random Status*.
 
 ### Optional: calendar (for Meeting Status)
-Add a **Calendar ICS URL** in preferences to enable *Meeting Status*. In Google Calendar → *Settings → Settings for my calendars → [your calendar] → Integrate calendar → Secret address in iCal format*. Paste that URL. It grants read access to that calendar, so treat it like a secret (it's stored as a password preference).
+Add a **Calendar ICS URL** in preferences to enable *Meeting Status*:
+
+1. Open [Google Calendar](https://calendar.google.com) in a browser → ⚙️ **Settings**
+2. Under **Settings for my calendars**, click the calendar you want
+3. Scroll to **Integrate calendar**
+4. Copy **Secret address in iCal format** — *not* "Calendar ID" and *not* "Public address"
+5. Paste it into the extension's **Calendar ICS URL** preference
+
+The correct URL starts with `https://calendar.google.com/calendar/ical/`, contains `/private-…`, and **ends in `/basic.ics`**. A `404` almost always means the "Public address" was used on a non-public calendar, or part of the URL is missing.
+
+It grants read access to that calendar, so treat it like a secret — it's stored as a password preference. See Google's guide: [Sync your calendar with computer programs](https://support.google.com/calendar/answer/37648).
 
 ## Usage
 
